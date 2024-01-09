@@ -604,16 +604,24 @@ GetWTandMutCount <- function(loci_file, allele_frequencies_file) {
   #  return(NULL)
   #}
   subs.data = subs.data[order(subs.data[,1], subs.data[,2]),]
-  
+			      
   # Replace dinucleotides and longer with just the first base. Here we assume the depth of the second base is the same and the number of dinucleotides is so low that removing the second base is negligable
   subs.data[,3] = apply(as.data.frame(subs.data[,3]), 1, function(x) { substring(x, 1,1) })
   subs.data[,4] = apply(as.data.frame(subs.data[,4]), 1, function(x) { substring(x, 1,1) })
-  
+
+  #Remove rows not containing standard nucleotides
+  nucleotides = c("A","C","G","T")
+  nuc_pass_ref <- which(subs.data[,3] %in% nucleotides)
+  nuc_pass_alt <- which(subs.data[,4] %in% nucleotides)
+  nuc_pass_all <- sort(unique(c(nuc_pass_ref, nuc_pass_alt)
+  subs.data <- subs.data[nuc_pass_all,]
+		       
   subs.data.gr = GenomicRanges::GRanges(subs.data[,1], IRanges::IRanges(subs.data[,2], subs.data[,2]), rep('*', nrow(subs.data)))
   elementMetadata(subs.data.gr) = subs.data[,c(3,4)]
   
   alleleFrequencies = read.delim(allele_frequencies_file, sep='\t', header=T, quote=NULL, stringsAsFactors=F)
   alleleFrequencies = alleleFrequencies[order(alleleFrequencies[,1],alleleFrequencies[,2]),]
+
   print(head(alleleFrequencies))
   alleleFrequencies.gr = GenomicRanges::GRanges(alleleFrequencies[,1], IRanges::IRanges(alleleFrequencies[,2], alleleFrequencies[,2]), rep('*', nrow(alleleFrequencies)))
   elementMetadata(alleleFrequencies.gr) = alleleFrequencies[,3:7]
@@ -621,13 +629,6 @@ GetWTandMutCount <- function(loci_file, allele_frequencies_file) {
   # Subset the allele frequencies by the loci we would like to include
   overlap = findOverlaps(subs.data.gr, alleleFrequencies.gr)
   alleleFrequencies = alleleFrequencies[subjectHits(overlap),]
-  
-  nucleotides = c("A","C","G","T")
-  #Remove rows not containing standard nucleotides
-  nuc_pass_ref <- which(subs.data[,3] %in% nucleotides)
-  nuc_pass_alt <- which(subs.data[,4] %in% nucleotides)
-  nuc_pass_all <- sort(unique(c(nuc_pass_ref, nuc_pass_alt)
-  subs.data <- subs.data[nuc_pass_all,]
 			     
   ref.indices = match(subs.data[,3],nucleotides)
   alt.indices = match(subs.data[,4],nucleotides)
