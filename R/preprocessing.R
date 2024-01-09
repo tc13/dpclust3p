@@ -623,6 +623,12 @@ GetWTandMutCount <- function(loci_file, allele_frequencies_file) {
   alleleFrequencies = alleleFrequencies[subjectHits(overlap),]
   
   nucleotides = c("A","C","G","T")
+  #Remove rows not containing standard nucleotides
+  nuc_pass_ref <- which(subs.data[,3] %in% nucleotides)
+  nuc_pass_alt <- which(subs.data[,4] %in% nucleotides)
+  nuc_pass_all <- sort(unique(c(nuc_pass_ref, nuc_pass_alt)
+  subs.data <- subs.data[nuc_pass_all,]
+			     
   ref.indices = match(subs.data[,3],nucleotides)
   alt.indices = match(subs.data[,4],nucleotides)
   WT.count = as.numeric(unlist(sapply(1:nrow(alleleFrequencies),function(v,a,i){v[i,a[i]+2]},v=alleleFrequencies,a=ref.indices)))
