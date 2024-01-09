@@ -611,11 +611,11 @@ GetWTandMutCount <- function(loci_file, allele_frequencies_file) {
 
   #Remove rows not containing standard nucleotides
   nucleotides = c("A","C","G","T")
-  nuc_pass_ref <- which(subs.data[,3] %in% nucleotides)
-  nuc_pass_alt <- which(subs.data[,4] %in% nucleotides)
-  nuc_pass_all <- sort(unique(c(nuc_pass_ref, nuc_pass_alt)
-  subs.data <- subs.data[nuc_pass_all,]
-		       
+  nuc_pass_ref = which(subs.data[,3] %in% nucleotides)
+  nuc_pass_alt = which(subs.data[,4] %in% nucleotides)
+  nuc_pass_all = sort(unique(c(nuc_pass_ref, nuc_pass_alt)))
+  subs.data = subs.data[nuc_pass_all,]
+			     
   subs.data.gr = GenomicRanges::GRanges(subs.data[,1], IRanges::IRanges(subs.data[,2], subs.data[,2]), rep('*', nrow(subs.data)))
   elementMetadata(subs.data.gr) = subs.data[,c(3,4)]
   
