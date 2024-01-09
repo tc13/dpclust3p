@@ -599,10 +599,10 @@ GetCellularity <- function(rho_and_psi_file) {
 #'@noRd
 GetWTandMutCount <- function(loci_file, allele_frequencies_file) {
   subs.data = tryCatch(read.table(loci_file, sep='\t', header=F, stringsAsFactors=F), error=function(e) NA)
-  if (is.na(subs.data)) {
-    # Empty input
-    return(NULL)
-  }
+  #if (is.na(subs.data)) {
+  #  # Empty input
+  #  return(NULL)
+  #}
   subs.data = subs.data[order(subs.data[,1], subs.data[,2]),]
   
   # Replace dinucleotides and longer with just the first base. Here we assume the depth of the second base is the same and the number of dinucleotides is so low that removing the second base is negligable
