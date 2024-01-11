@@ -492,7 +492,7 @@ GetDirichletProcessInfo<-function(outputfile, cellularity, info, subclone.file, 
   if(length(amplified.muts)>0){		
     for(a in 1:length(amplified.muts)){
 	if(counter%%1000==0){
-	      print0("Processing variant ", (counter+1), " of " length(amplified.muts)
+	      print0("Processing variant ", (counter+1), " of " length(amplified.muts))
 	}
       counter = (counter + 1)
       max.CN2=0
