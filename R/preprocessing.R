@@ -488,8 +488,13 @@ GetDirichletProcessInfo<-function(outputfile, cellularity, info, subclone.file, 
   info$no.chrs.bearing.mut = 1	
   
   #copy numbers of subclones can only differ by 1 or 0 (as assumed when calling subclones)
+  counter = 0
   if(length(amplified.muts)>0){		
     for(a in 1:length(amplified.muts)){
+	if(counter%%1000==0){
+	      print0("Processing variant ", (counter+1), " of " length(amplified.muts)
+	}
+      counter = (counter + 1)
       max.CN2=0
       #use phasing info - if on 'deleted' (lower CN chromosome), use the minor copy number
       if(info$phase[amplified.muts[a]]=="MUT_ON_DELETED"){
