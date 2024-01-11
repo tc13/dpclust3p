@@ -614,8 +614,10 @@ GetWTandMutCount <- function(loci_file, allele_frequencies_file) {
   nuc_na_ref = which(!subs.data[,3] %in% nucleotides)
   nuc_na_alt = which(!subs.data[,4] %in% nucleotides)
   nuc_na_all = sort(unique(c(nuc_na_ref, nuc_na_alt)))
-  nuc_pass_all = (1:nrow(subs.data))[-nuc_na_all]
-  subs.data = subs.data[nuc_pass_all,]
+  if(length(nuc_na_all)>0){
+  	nuc_pass_all = (1:nrow(subs.data))[-nuc_na_all]
+  	subs.data = subs.data[nuc_pass_all,]
+	}
 			     
   subs.data.gr = GenomicRanges::GRanges(subs.data[,1], IRanges::IRanges(subs.data[,2], subs.data[,2]), rep('*', nrow(subs.data)))
   elementMetadata(subs.data.gr) = subs.data[,c(3,4)]
