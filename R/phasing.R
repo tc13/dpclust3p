@@ -4,12 +4,13 @@
 args = commandArgs(T)
 samplename = args[1]
 bam_file = args[2]
-vcf_file = args[3]
+loci_file = args[3]
 outdir = args[4]
 fai_file = args[5]
 ign_file = args[6]
 max_distance = 700
 minMapQ = 20
+vcf_file = FALSE
 
 library(Rsamtools)
 library(VariantAnnotation)
@@ -370,9 +371,9 @@ get_allele_combination_counts = function(bam, dat_pair) {
 ############################################
 # script
 ############################################
-loci_file = file.path(outdir, paste0(samplename, "_loci.txt"))
+#loci_file = file.path(outdir, paste0(samplename, "_loci.txt"))
 phased_file = file.path(outdir, paste0(samplename, "_mutmut_phasing.txt"))
-vcf2loci(list(vcf_file), fai_file, ign_file, loci_file)
+#vcf2loci(list(vcf_file), fai_file, ign_file, loci_file)
 
 mut_mut_phasing(loci_file=loci_file,
                 phased_file=phased_file,
