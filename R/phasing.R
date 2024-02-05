@@ -8,6 +8,7 @@ loci_file = args[3]
 outdir = args[4]
 fai_file = args[5]
 ign_file = args[6]
+hap_file = args[7]
 max_distance = 700
 minMapQ = 20
 vcf_file = FALSE
@@ -121,7 +122,7 @@ mut_mut_phasing = function(loci_file, phased_file, bam_file, bai_file, max_dista
     count.data = data.frame()
     
     for (i in 1:nrow(output)) {
-      save(file="test.RData", output, i)
+      #save(file="test.RData", output, i)
       chrom = output$Chr[i]
       dat_pair = data.frame(chrom=rep(output$Chr[i],2), start=c(output$Pos1[i], output$Pos2[i]), end=c(output$Pos1[i], output$Pos2[i]))
       dat_pair = makeGRangesFromDataFrame(dat_pair)
@@ -373,6 +374,7 @@ get_allele_combination_counts = function(bam, dat_pair) {
 ############################################
 #loci_file = file.path(outdir, paste0(samplename, "_loci.txt"))
 phased_file = file.path(outdir, paste0(samplename, "_mutmut_phasing.txt"))
+phased_loci_file = file.path(outdir, paste0(samplename, "_mut_cn_phasing.txt"))
 #vcf2loci(list(vcf_file), fai_file, ign_file, loci_file)
 
 mut_mut_phasing(loci_file=loci_file,
@@ -381,3 +383,11 @@ mut_mut_phasing(loci_file=loci_file,
                 bai_file=paste0(bam_file, ".bai"),
                 max_distance=max_distance,
                 minMapQ=minMapQ)
+
+mut_cn_phasing(loci_file=loci_file, 
+               phased_file=phased_file, 
+               hap_file=hap_file, 
+               bam_file=bam_file, 
+               bai_file=paste0(bam_file, ".bai"), 
+               outfile=phased_loci_file, 
+               max_distance=max_distance)
