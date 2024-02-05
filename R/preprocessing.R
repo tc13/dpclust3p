@@ -187,39 +187,21 @@ run_linkage_pull_mut = function(output, loci_file, bam_file, bai_file) {
   return(count.data)
 }
 
-#' Phase mutation to mutation
-#' 
-#' Run mutation to mutation phasing. This function requires the Linkage_pull.pl script in $PATH.
-#' @param loci_file A list of loci
-#' @param phased_file File to save the output
-#' @param bam_file Full path to the bam file
-#' @param bai_file Full path to the bai file
-#' @param max_distance The max distance of a mutation and SNP can be apart to be considered for phasing
-#' @author sd11, dw9
-#' @export
-mut_mut_phasing = function(loci_file, phased_file, bam_file, bai_file, max_distance) {
-  # Check if there are lines in the file, otherwise it will crash this script
-  #if (file.info(loci_file)$size == 0) {
-  #  print("No lines in loci file")
-  #  q(save="no")
-  #}
-  
+#Updated mut_mut_phasing script from todo dir
+mut_mut_phasing = function(loci_file, phased_file, bam_file, bai_file, max_distance, minMapQ=20) {
   # TODO: this must be removed
-  chr.names = c(1:22,"X")
-  
+  #chr.names = c(1:22,"X","Y")
+  print("START")
   muts <- read.delim(loci_file, header=F, row.names=NULL, stringsAsFactors=F)
   names(muts) = c("CHR","POSITION","WT","MT")
+  chr.names = unique(muts$CHR)
   muts = muts[order(match(muts$CHR,chr.names),muts$POSITION),]
-  
-  # # TODO: Does this work with X and Y ??
-  # if (!is.null(chrom)) {
-  #   muts = muts[muts$CHR==chrom,]
-  # }
-  
+  print("AFTER READING")
   # Pairwise comparison of all muts, only take those that are close to eachother
   output <- data.frame(Chr = vector(mode="character",length=0), Pos1 = vector(mode="numeric",length=0), Ref1 = vector(mode="character",length=0), Var1 = vector(mode="character",length=0), Pos2 = vector(mode="numeric",length=0), Ref2 = vector(mode="character",length=0), Var2 = vector(mode="character",length=0))
   for(chr in chr.names){
     chr.muts = muts[muts$CHR==chr,]
+    if (nrow(chr.muts) < 2) { next() }
     no.muts = nrow(chr.muts)
     for(i in 1:(no.muts-1)){
       dist = chr.muts$POSITION[(i+1):no.muts] - chr.muts$POSITION[i]
@@ -229,11 +211,39 @@ mut_mut_phasing = function(loci_file, phased_file, bam_file, bai_file, max_dista
       }
     }
   }
+  print("AFTER FIRST FOR")
   
   if (nrow(output) > 0) {
-    # Run linkage pull on the chromosome locations mentioned in the data.frame output
-    count.data = run_linkage_pull_mut(output, loci_file, bam_file, bai_file)
+    print("IN IF")
+    count.data = data.frame()
     
+    for (i in 1:nrow(output)) {
+      save(file="test.RData", output, i)
+      chrom = output$Chr[i]
+      dat_pair = data.frame(chrom=rep(output$Chr[i],2), start=c(output$Pos1[i], output$Pos2[i]), end=c(output$Pos1[i], output$Pos2[i]))
+      dat_pair = makeGRangesFromDataFrame(dat_pair)
+      
+      wt_wt = paste(output$Ref1[i], output$Ref2[i], sep="_")
+      mut_wt = paste(output$Var1[i], output$Ref2[i], sep="_")
+      wt_mut = paste(output$Ref1[i], output$Var2[i], sep="_")
+      mut_mut = paste(output$Var1[i], output$Var2[i], sep="_")
+    
+      flag = scanBamFlag(isPaired=T, hasUnmappedMate=F, isDuplicate=F, isUnmappedQuery=F) #, isProperPair=T
+      param <- ScanBamParam(which=dat_pair[1,], what=scanBamWhat(), flag=flag, mapqFilter=minMapQ) #, mapqFilter=minMapQ
+      bamfile <- BamFile(bam_file, asMates=TRUE)
+      bam <- scanBam(bamfile, param=param)[[1]]
+    
+      alleles = get_allele_combination_counts(bam, dat_pair)
+      
+      #' SNV to SNV
+      allele_pairs = table(factor(paste(alleles$snv1, alleles$snv2, sep="_"), levels=c(wt_wt, mut_mut, wt_mut, mut_wt)))
+      count.data = rbind(count.data, data.frame(output[i,], 
+                                                Num_WT_WT=allele_pairs[[wt_wt]], 
+                                                Num_Mut_Mut=allele_pairs[[mut_mut]], 
+                                                Num_Mut_WT=allele_pairs[[mut_wt]], 
+                                                Num_WT_Mut=allele_pairs[[wt_mut]]))
+    }
+    print("AFTER FIRST FOR in IF")
     # Categorise pairs of mutations
     count.data$phasing = NA
     for(h in 1:nrow(count.data)){
@@ -251,7 +261,7 @@ mut_mut_phasing = function(loci_file, phased_file, bam_file, bai_file, max_dista
         count.data$phasing[h]="subclone-clone"
       }  
     }
-    
+    print("AFTER second FOR in IF")
     write.table(count.data[!is.na(count.data$phasing),],phased_file,sep="\t",quote=F,row.names=F)
   }
 }
