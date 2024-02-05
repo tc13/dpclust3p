@@ -57,35 +57,35 @@ parseIgnore = function(ignore_file) {
 #' @param dummy_ref_allele The reference allele to store, supply when you want to override what is in the VCF (Default: NA)
 #' @author sd11
 #' @export
-vcf2loci = function(vcf_files, fai_file, ign_file, outfile, dummy_alt_allele=NA, dummy_ref_allele=NA) {
-  fai = parseFai(fai_file)
-  ign = parseIgnore(ign_file)
-  allowed_chroms = which(!(fai$chromosome %in% ign$chromosome))
+#vcf2loci = function(vcf_files, fai_file, ign_file, outfile, dummy_alt_allele=NA, dummy_ref_allele=NA) {
+#  fai = parseFai(fai_file)
+#  ign = parseIgnore(ign_file)
+#  allowed_chroms = which(!(fai$chromosome %in% ign$chromosome))
   
   # Run through each supplied vcf file, collect the loci from each
-  combined.loci = data.frame()
-  for (vcf_file in vcf_files) {
-    vcf.cols = ncol(read.delim(vcf_file, comment.char="#", header=F, stringsAsFactor=F, nrows=1))
-    vcf.cols.default = 10 # vcf file standard contains 10 columns
-    vcf.colClasses = c(NA, NA, "NULL", NA, NA, rep("NULL", 5+(vcf.cols-vcf.cols.default)))
-    vcf.loci = read.delim(vcf_file, comment.char="#", header=F, stringsAsFactor=F, colClasses=vcf.colClasses)
-    colnames(vcf.loci) = c("chromosome", "pos", "ref","alt")
-    vcf.loci.sel = subset(vcf.loci, chromosome %in% fai$chromosome[allowed_chroms])
-    combined.loci = rbind(combined.loci, vcf.loci.sel)
-  }
+ # combined.loci = data.frame()
+ # for (vcf_file in vcf_files) {
+  #  vcf.cols = ncol(read.delim(vcf_file, comment.char="#", header=F, stringsAsFactor=F, nrows=1))
+  #  vcf.cols.default = 10 # vcf file standard contains 10 columns
+  #  vcf.colClasses = c(NA, NA, "NULL", NA, NA, rep("NULL", 5+(vcf.cols-vcf.cols.default)))
+  #  vcf.loci = read.delim(vcf_file, comment.char="#", header=F, stringsAsFactor=F, colClasses=vcf.colClasses)
+  #  colnames(vcf.loci) = c("chromosome", "pos", "ref","alt")
+  #  vcf.loci.sel = subset(vcf.loci, chromosome %in% fai$chromosome[allowed_chroms])
+  #  combined.loci = rbind(combined.loci, vcf.loci.sel)
+  #}
   
   # Override the ref and alt alleles if desired
-  if (!is.na(dummy_alt_allele) & dummy_alt_allele!="NA") {
-    combined.loci$alt = dummy_alt_allele
-  }
-  if (!is.na(dummy_ref_allele) & dummy_ref_allele!="NA") {
-    combined.loci$ref = dummy_ref_allele
-  }
+  #if (!is.na(dummy_alt_allele) & dummy_alt_allele!="NA") {
+  #  combined.loci$alt = dummy_alt_allele
+  #}
+  #if (!is.na(dummy_ref_allele) & dummy_ref_allele!="NA") {
+  #  combined.loci$ref = dummy_ref_allele
+  #}
   
   # Remove duplicate entries
-  combined.loci = unique(combined.loci)
-  write.table(combined.loci, col.names=F, quote=F, row.names=F, file=outfile, sep="\t")
-}
+  #combined.loci = unique(combined.loci)
+  #write.table(combined.loci, col.names=F, quote=F, row.names=F, file=outfile, sep="\t")
+#}
 
 ############################################
 # phasing
