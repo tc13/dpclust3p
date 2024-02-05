@@ -199,13 +199,13 @@ run_linkage_pull_mut = function(output, loci_file, bam_file, bai_file) {
 #' @export
 mut_mut_phasing = function(loci_file, phased_file, bam_file, bai_file, max_distance) {
   # Check if there are lines in the file, otherwise it will crash this script
-  if (file.info(loci_file)$size == 0) {
-    print("No lines in loci file")
-    q(save="no")
-  }
+  #if (file.info(loci_file)$size == 0) {
+  #  print("No lines in loci file")
+  #  q(save="no")
+  #}
   
   # TODO: this must be removed
-  chr.names = c(1:22,"X","Y")
+  chr.names = c(1:22,"X")
   
   muts <- read.delim(loci_file, header=F, row.names=NULL, stringsAsFactors=F)
   names(muts) = c("CHR","POSITION","WT","MT")
