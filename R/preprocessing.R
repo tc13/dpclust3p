@@ -462,7 +462,7 @@ GetDirichletProcessInfo<-function(outputfile, cellularity, info, subclone.file, 
   if (!is.null(SNP.phase.file) & SNP.phase.file!="NA") {
     phasing = read.table(SNP.phase.file, header=T, stringsAsFactors=F) #header=T, skip=1, 
     phasing.gr = GenomicRanges::GRanges(phasing$Chr, IRanges::IRanges(phasing$Pos1, phasing$Pos1))
-    phasing.gr$phasing = phasing$Parental
+    phasing.gr$phasing = phasing$phasing
     inds = findOverlaps(info, phasing.gr)  
     info$phase[queryHits(inds)] = phasing.gr$phasing[subjectHits(inds)]
     
